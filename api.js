@@ -13,7 +13,6 @@ client.on('qr', (qr) => {
 });
 
 
-// Function to send messages
 const sendMessage = async (to, text) => {
     try {
         await client.sendMessage(to, text);
@@ -22,7 +21,6 @@ const sendMessage = async (to, text) => {
         console.error(`... failed to send message to ${to}:`, error);
     }
 }
-
 
 client.on('ready', () => {
     console.log("... whatsapp ready!")
