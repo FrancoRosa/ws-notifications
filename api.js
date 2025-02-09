@@ -7,8 +7,9 @@ const client = new Client({
   authStrategy: new LocalAuth(),
 });
 
-const groupId = process.env.WS_GROUP;
+let lastStatus = "";
 
+const groupId = process.env.WS_GROUP;
 
 const sendMessage = async (to, text) => {
   try {
@@ -19,10 +20,19 @@ const sendMessage = async (to, text) => {
   }
 };
 
-const statusMsg = () => {
+const statusMsg = (onDemand = false) => {
   getOutDatedNotification().then((res) => {
-    if (res) {
-      sendMessage(groupId, res);
+    if (onDemand) {
+      if (res) {
+        sendMessage(groupId, res);
+      } else {
+        sendMessage(groupId, "All locations are reporting");
+      }
+    } else {
+      if (res !== lastStatus) {
+        sendMessage(groupId, res);
+      }
+      lastStatus = res;
     }
   });
 };
@@ -54,16 +64,12 @@ client.on("ready", () => {
 
 client.on("message", (msg) => {
   const { from, to, body, type } = msg;
-  console.log({from, body })
-  if (from === 'status@broadcast') {
-    console.log(msg)
-  }
   if (from === groupId) {
     if (body.toLowerCase().includes("status")) {
-        statusMsg()
+      statusMsg();
     }
     if (body.toLowerCase().includes("quote")) {
-        statusMsg()
+      quoteMsg();
     }
   }
 });
