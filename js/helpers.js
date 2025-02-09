@@ -240,9 +240,8 @@ const getQuote = async () => {
     return `${data.quote} - ${data.author}`
 }
 
-console.log("..... test")
-getOutDatedNotification().then(res => console.log(res))
-console.log("..... ")
+// console.log("..... test .....")
+// getOutDatedNotification().then(res => console.log(res))
 
 exports.getOutDatedNotification = getOutDatedNotification;
 exports.getQuote = getQuote;
