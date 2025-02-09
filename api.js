@@ -66,7 +66,7 @@ client.on("message", (msg) => {
   const { from, to, body, type } = msg;
   if (from === groupId) {
     if (body.toLowerCase().includes("status")) {
-      statusMsg();
+      statusMsg(onDemand);
     }
     if (body.toLowerCase().includes("quote")) {
       quoteMsg();
