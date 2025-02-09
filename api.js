@@ -8,7 +8,7 @@ const client = new Client({
 });
 
 client.on('qr', (qr) => {
-    console.log('Scan this QR code with WhatsApp:');
+    console.log('... scan this QR code with whatsApp:');
     qrcode.generate(qr, { small: true });
 });
 

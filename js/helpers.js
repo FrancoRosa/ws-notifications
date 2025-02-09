@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { createClient } = require("@supabase/supabase-js");
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
@@ -7,7 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const getAllTanks = async (dips_id) => {
     const { data, error } = await supabase
         .from("latest")
-        .select("location_id, updated_at")
+        .select("location_id, tank, updated_at").eq("enabled", true)
     if (error) {
         console.log(error);
     }
@@ -182,19 +184,21 @@ const getUniqueTanks = (tanks) => {
     );
 };
 
-const areDates1HourApart = (date1, date2) => {
-    const differenceInMilliseconds = Math.abs(date1 - date2);
-    const oneHourInMilliseconds = 60 * 60 * 1000;
-    return differenceInMilliseconds >= oneHourInMilliseconds;
+const areDates2HourApart = (date1, date2) => {
+    const differenceInMs = Math.abs(date1 - date2);
+    const twoHourInMs = 1 * 60 * 60 * 1000;
+    const outDated  = differenceInMs >= twoHourInMs
+    return outDated;
 };
 
-const getOutdatedIds = (unique) => {
+const getOutdatedIds = (tanks) => {
     const now = new Date()
-    const outdated = unique.filter(f => {
+    const outdated = tanks.filter(f => {
         const updated_time = new Date(f.updated_at)
-        return areDates1HourApart(updated_time, now)
+        return areDates2HourApart(now, updated_time)
     })
-    return outdated.map(o => o.location_id)
+    const unique = getUniqueTanks(outdated)
+    return unique.map(o => o.location_id)
 
 }
 
@@ -214,14 +218,14 @@ const getOutdatedLocations = (locations, ids) => {
 
 const getNotificationText = (outdated) => {
     const list = outdated.map(o => `${o.name} (${o.remote})`)
-    return "The following `Dips` are *presenting issues*```\n" + list.join("\n") + "```"
+    return "The following sites present issues\n```\n" + list.join("\n") + "\n```"
 }
 
 const getOutDatedNotification = async () => {
     const locations = await getEnabledLocations()
     const tanks = await getAllTanks()
-    const uniqueTanks = getUniqueTanks(tanks)
-    const outdatedIds = getOutdatedIds(uniqueTanks)
+    // const uniqueTanks = getUniqueTanks(tanks)
+    const outdatedIds = getOutdatedIds(tanks)
     if (outdatedIds.length > 0) {
         return getNotificationText(getOutdatedLocations(locations, outdatedIds))
     }
@@ -235,6 +239,10 @@ const getQuote = async () => {
     const data = await res.json()
     return `${data.quote} - ${data.author}`
 }
+
+console.log("..... test")
+getOutDatedNotification().then(res => console.log(res))
+console.log("..... ")
 
 exports.getOutDatedNotification = getOutDatedNotification;
 exports.getQuote = getQuote;
