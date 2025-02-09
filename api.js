@@ -64,9 +64,7 @@ client.on("ready", () => {
 
 client.on("message", (msg) => {
   const { from, to, body, type } = msg;
-  console.log({ from, to, body, type })
   if (from === groupId) {
-    console.log("Group stuff..")
     if (body.toLowerCase().includes("status")) {
       statusMsg(true);
     }
