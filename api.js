@@ -26,7 +26,7 @@ const statusMsg = (onDemand = false) => {
       if (res) {
         sendMessage(groupId, res);
       } else {
-        sendMessage(groupId, "All locations are reporting");
+        sendMessage(groupId, "All sites are reporting on time");
       }
     } else {
       if (res !== lastStatus) {
@@ -64,9 +64,11 @@ client.on("ready", () => {
 
 client.on("message", (msg) => {
   const { from, to, body, type } = msg;
+  console.log({ from, to, body, type })
   if (from === groupId) {
+    console.log("Group stuff..")
     if (body.toLowerCase().includes("status")) {
-      statusMsg(onDemand);
+      statusMsg(true);
     }
     if (body.toLowerCase().includes("quote")) {
       quoteMsg();
