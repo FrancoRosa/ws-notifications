@@ -231,7 +231,6 @@ export const getOutDatedNotification = async () => {
   const tanks = await getAllTanks();
   // const uniqueTanks = getUniqueTanks(tanks)
   const outdatedIds = getOutdatedIds(tanks);
-  console.log({ outdatedIds });
   if (outdatedIds.length > 0) {
     return getNotificationText(getOutdatedLocations(locations, outdatedIds));
   }
@@ -241,8 +240,11 @@ export const getOutDatedNotification = async () => {
 export const getQuote = async () => {
   const res = await fetch("https://qapi.vercel.app/api/random");
   const data = await res.json();
-  console.log({ data });
-  return `${data.quote} - ${data.author}`;
+  if (data.quote) {
+    return `${data.quote} - ${data.author}`;
+  } else {
+    return "Too many quote requests where made try again later";
+  }
 };
 
 // console.log("..... test .....");

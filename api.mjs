@@ -11,7 +11,6 @@ import { writeFile } from "fs/promises";
 
 let settings = savedSettings;
 
-console.log({ settings });
 dotenv.config();
 
 const app = express();
@@ -46,7 +45,6 @@ const sendWsMsg = (to, text) => {
     },
   };
 
-  console.log({ body });
   fetch(url, {
     method: "POST",
     headers,
@@ -81,13 +79,15 @@ const quoteMsg = (to) => {
 };
 
 setInterval(() => {
-  const time = new Date().toLocaleString("sv");
-  if (time.includes(":00:00")) {
+  const time = new Date().toLocaleString("sv", { timeZone: "America/Regina" });
+  if (time.includes(":00:35")) {
+    console.log(timestamp());
     settings.subscribed.forEach((subscribed) => {
       statusMsg(subscribed, false);
     });
   }
-  if (time.includes("08:05:05")) {
+  if (time.includes("08:05:35")) {
+    console.log(timestamp());
     settings.subscribed.forEach((subscribed) => {
       quoteMsg(subscribed);
     });
@@ -110,7 +110,7 @@ app.get("/webhook", async (req, res) => {
 });
 
 app.post("/webhook", async (req, res) => {
-  try {
+  if ("messages" in req.body.entry[0].changes[0].value) {
     const {
       entry: [
         {
@@ -131,8 +131,6 @@ app.post("/webhook", async (req, res) => {
     } = req.body;
 
     if (body && from) {
-      console.log("... new message was received");
-      console.log({ body, from }); // Output: "Biach"
       const sanitized = body.toLowerCase().trim();
       switch (sanitized) {
         case "status":
@@ -174,8 +172,6 @@ app.post("/webhook", async (req, res) => {
 
       res.send({ msg: "message received" });
     }
-  } catch (err) {
-    console.log("...");
   }
 });
 
